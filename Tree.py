@@ -14,13 +14,15 @@ class Person:
         if father.gender != 'male':
             raise ValueError(f"Father must be male")
         self.father = father
-        father.children.append(self)
+        if self not in father.children:
+            father.children.append(self)
 
     def set_mother(self, mother):
         if mother.gender != 'female':
             raise ValueError(f"Mother must be female")
         self.mother = mother
-        mother.children.append(self)
+        if self not in mother.children:
+            mother.children.append(self)
 
     def __repr__(self):
         return f"Person(name={self.name})"
@@ -59,58 +61,54 @@ class FamilyTree:
         child.set_mother(mother)
 
     def find_path(self, start_name, target_name):
-        print('test')
-        start_name = self.get_person(start_name)
-        target_name = self.get_person(target_name)
+        start_person = self.get_person(start_name)
+        target_person = self.get_person(target_name)
         visited = set()
         path = []
 
         def dfs(person):
-            print('test')
-
+            # اگر قبلاً دیده شده، برگرد
             if person in visited:
                 return False
+            
             visited.add(person)
 
-            if person.name == target_name:
+            # هدف پیدا شد!
+            if person == target_person:
                 return True
 
-            # Check parents
+            # بررسی پدر
+            if person.father:
+                path.append('father')
+                if dfs(person.father):
+                    return True
+                path.pop()
+                
+            # بررسی مادر
             if person.mother:
                 path.append('mother')
                 if dfs(person.mother):
                     return True
-                # path.pop()
-            if person.father:
-                print(person.father)
-                path.append('father')
-                if dfs(person.father):
-                    return True
-                # path.pop()
+                path.pop()
 
-            
-            # Check children
-            if person.children:
-                for child in person.children:
-                    print(child)
-                    child = self.get_person(child)
-                    if child.gender == 'female':
-                        path.append('dauther')
-                    else:
-                        path.append('son')
-                    
-                    if dfs(child):
-                        return True
-                    
-                        
+            # بررسی فرزندان
+            for child in person.children:
+                if child.gender == 'female':
+                    path.append('daughter')
+                else:
+                    path.append('son')
+                
+                if dfs(child):
+                    return True
+                path.pop()
                         
             return False
 
-        if dfs(start_name):
-            # return ' '.join(path)
+        if dfs(start_person):
             return path
         else:
             return None
+            
     # ---- Utility / Debug ----
     def show_person(self, name: str):
         person = self.get_person(name)
@@ -145,5 +143,5 @@ if __name__ == "__main__":
     path = tree.find_path("Ali", "Hasan")
     print("Path from Ali to Hasan:", path)
 
-
-    print (tree.find_path('Ali', 'Reza'))
+    path2 = tree.find_path('Ali', 'Reza')
+    print("Path from Ali to Reza:", path2)
