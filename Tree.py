@@ -4,9 +4,6 @@
 
 class Person:
     def __init__(self, name: str, gender: str):
-        """
-        gender must be: 'male' or 'female'
-        """
         self.name = name
         self.gender = gender
         self.father = None
@@ -14,16 +11,12 @@ class Person:
         self.children = []
 
     def set_father(self, father):
-        if self.father is not None:
-            raise ValueError(f"{self.name} already has a father")
         if father.gender != 'male':
             raise ValueError(f"Father must be male")
         self.father = father
         father.children.append(self)
 
     def set_mother(self, mother):
-        if self.mother is not None:
-            raise ValueError(f"{self.name} already has a mother")
         if mother.gender != 'female':
             raise ValueError(f"Mother must be female")
         self.mother = mother
@@ -51,7 +44,7 @@ class FamilyTree:
 
     def get_person(self, name: str):
         if name not in self.people:
-            raise ValueError("Person not found in tree")
+            raise ValueError(f"{name} Person not found in tree")
         return self.people[name]
 
     # ---- Relationship Connections ----
@@ -65,6 +58,59 @@ class FamilyTree:
         mother = self.get_person(mother_name)
         child.set_mother(mother)
 
+    def find_path(self, start_name, target_name):
+        print('test')
+        start_name = self.get_person(start_name)
+        target_name = self.get_person(target_name)
+        visited = set()
+        path = []
+
+        def dfs(person):
+            print('test')
+
+            if person in visited:
+                return False
+            visited.add(person)
+
+            if person.name == target_name:
+                return True
+
+            # Check parents
+            if person.mother:
+                path.append('mother')
+                if dfs(person.mother):
+                    return True
+                # path.pop()
+            if person.father:
+                print(person.father)
+                path.append('father')
+                if dfs(person.father):
+                    return True
+                # path.pop()
+
+            
+            # Check children
+            if person.children:
+                for child in person.children:
+                    print(child)
+                    child = self.get_person(child)
+                    if child.gender == 'female':
+                        path.append('dauther')
+                    else:
+                        path.append('son')
+                    
+                    if dfs(child):
+                        return True
+                    
+                        
+                        
+            return False
+
+        if dfs(start_name):
+            # return ' '.join(path)
+            return path
+        else:
+            return None
     # ---- Utility / Debug ----
     def show_person(self, name: str):
         person = self.get_person(name)
@@ -81,7 +127,6 @@ class FamilyTree:
 
 if __name__ == "__main__":
     tree = FamilyTree()
-
     # Add persons
     tree.add_person("Hasan", "male")
     tree.add_person("Fatemeh", "female")
@@ -92,13 +137,13 @@ if __name__ == "__main__":
     # Build tree
     tree.set_father("Reza", "Hasan")
     tree.set_mother("Reza", "Fatemeh")
-
     tree.set_father("Zahra", "Hasan")
     tree.set_mother("Zahra", "Fatemeh")
-
     tree.set_father("Ali", "Reza")
 
-    # Debug output
-    tree.show_person("Hasan")
-    print("-----------")
-    tree.show_person("Ali")
+    # Find and print the path from Ali to Hasan
+    path = tree.find_path("Ali", "Hasan")
+    print("Path from Ali to Hasan:", path)
+
+
+    print (tree.find_path('Ali', 'Reza'))
