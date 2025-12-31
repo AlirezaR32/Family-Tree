@@ -6,6 +6,16 @@
 .person-card {
     display: inline-block;
 }
+
+.container {
+    max-width: 1400px;
+    margin: 0 auto;
+    background: white;  /* تغییر از rgb(0,0,0) به white */
+    border-radius: 20px;
+    padding: 30px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+}
+
 body {
     font-family: 'Tahoma', 'Arial', sans-serif;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -175,4 +185,57 @@ button:disabled {
     background: #ffe0e0;
     border-color: #ff4444;
     color: #cc0000;
+}
+
+/* ===== شجره‌نامه واقعی ===== */
+
+.tree-node {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+}
+
+.parents,
+.children {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    margin: 10px 0;
+    position: relative;
+}
+
+/* خط عمودی بالا و پایین */
+.vertical-line {
+    width: 2px;
+    height: 25px;
+    background: #666;
+    margin: 0 auto;
+}
+
+/* خط افقی بین چند فرزند */
+.horizontal-line {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 2px;
+    background: #666;
+    width: 100%;
+}
+
+/* اتصال والد به فرزندان */
+.children::before {
+    content: "";
+    position: absolute;
+    top: -15px;
+    left: 50%;
+    width: 2px;
+    height: 15px;
+    background: #666;
+    transform: translateX(-50%);
+}
+
+/* زوج‌ها کنار هم */
+.parents .person-card {
+    margin: 0 10px;
 }

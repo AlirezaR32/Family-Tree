@@ -5,24 +5,24 @@ class FamilyTree:
     def __init__(self):
         self.people = {}
 
-    def add_person(self, name: str, gender: str):
+    def add_person(self, name, gender):
         if name in self.people:
             raise ValueError("Person already exists in tree")
         person = Person(name, gender)
         self.people[name] = person
         return person
 
-    def get_person(self, name: str):
+    def get_person(self, name):
         if name not in self.people:
             raise ValueError(f"{name} Person not found in tree")
         return self.people[name]
 
-    def set_father(self, child_name: str, father_name: str):
+    def set_father(self, child_name, father_name):
         child = self.get_person(child_name)
         father = self.get_person(father_name)
         child.set_father(father)
 
-    def set_mother(self, child_name: str, mother_name: str):
+    def set_mother(self, child_name, mother_name):
         child = self.get_person(child_name)
         mother = self.get_person(mother_name)
         child.set_mother(mother)

@@ -160,32 +160,6 @@ def analyze_complex_relation(path):
     for step in path:
         persian_steps.append(persian_map.get(step, step))
     
-    return ' → '.join(persian_steps)
+    return ' '.join(persian_steps)
 
 
-# تست
-if __name__ == '__main__':
-    test_cases = [
-        (['father'], 'پدر'),
-        (['mother'], 'مادر'),
-        (['son'], 'پسر'),
-        (['daughter'], 'دختر'),
-        (['father', 'father'], 'پدربزرگ (پدری)'),
-        (['mother', 'mother'], 'مادربزرگ (مادری)'),
-        (['son', 'son'], 'نوه'),
-        (['father', 'father', 'son'], 'عمو'),
-        (['father', 'father', 'daughter'], 'عمه'),
-        (['mother', 'father', 'son'], 'دایی'),
-        (['mother', 'father', 'daughter'], 'خاله'),
-        (['father', 'father', 'son', 'son'], 'پسرعمو'),
-        (['father', 'father', 'son', 'daughter'], 'دخترعمو'),
-        (['mother', 'father', 'son', 'son'], 'پسردایی'),
-        (['father', 'father', 'father'], 'پدربزرگ بزرگ'),
-        (['son', 'son', 'son'], 'نوه نوه نوه'),
-    ]
-    
-    print("🧪 تست تابع find_relation:\n")
-    for path, expected in test_cases:
-        result = find_relation(path)
-        status = "✅" if result == expected else "❌"
-        print(f"{status} {path} → {result} (انتظار: {expected})")

@@ -123,6 +123,37 @@ async function setMother() {
   }
 }
 
+// async function findPath() {
+//   const start = document.getElementById("pathStart").value;
+//   const end = document.getElementById("pathEnd").value;
+
+//   if (!start || !end) {
+//     showResult("لطفاً هر دو فرد را انتخاب کنید", true);
+//     return;
+//   }
+
+//   try {
+//     const response = await fetch(`${API_URL}/path`, {
+//       method: "POST",
+//       headers: { "Content-Type": "application/json" },
+//       body: JSON.stringify({ start, end }),
+//     });
+
+//     const result = await response.json();
+
+//     if (result.success && result.path) {
+//       const pathStr = result.path
+//         .map((p) => `<span class="path-step">${p}</span>`)
+//         .join(" ← ");
+//       showResult(`<h4>مسیر از ${start} به ${end}:</h4>${pathStr}`);
+//     } else {
+//       showResult(result.error || "مسیری پیدا نشد", true);
+//     }
+//   } catch (error) {
+//     showResult("خطا در ارتباط با سرور", true);
+//   }
+// }
+
 async function findPath() {
   const start = document.getElementById("pathStart").value;
   const end = document.getElementById("pathEnd").value;
@@ -142,10 +173,13 @@ async function findPath() {
     const result = await response.json();
 
     if (result.success && result.path) {
-      const pathStr = result.path
-        .map((p) => `<span class="path-step">${p}</span>`)
-        .join(" ← ");
-      showResult(`<h4>مسیر از ${start} به ${end}:</h4>${pathStr}`);
+      // نمایش نسبت فارسی
+      showResult(`
+        <h4>رابطه بین ${start} و ${end}:</h4>
+        <div class="path-step" style="font-size: 18px; padding: 15px;">
+          ${result.path}
+        </div>
+      `);
     } else {
       showResult(result.error || "مسیری پیدا نشد", true);
     }
@@ -183,139 +217,157 @@ function showResult(message, isError = false) {
   box.className = "result-box show" + (isError ? " error" : "");
 }
 
+// function renderTree() {
+//     const treeView = document.getElementById('treeView');
+//     treeView.innerHTML = '';
+    
+//     const roots = Object.values(treeData).filter(p => !p.father && !p.mother);
+    
+//     if (roots.length === 0) {
+//         treeView.innerHTML = '<p style="text-align:center; color:#666;">هنوز فردی اضافه نشده است</p>';
+//         return;
+//     }
+
+//     const treeDiv = document.createElement('div');
+//     treeDiv.style.display = 'flex';
+//     treeDiv.style.flexDirection = 'column';
+//     treeDiv.style.alignItems = 'center';
+//     treeDiv.style.gap = '40px';
+    
+//     // نمایش هر نسل در یک سطر
+//     const levels = getGenerationLevels();
+    
+//     Object.keys(levels).sort((a, b) => a - b).forEach(level => {
+//         const levelDiv = document.createElement('div');
+//         levelDiv.style.display = 'flex';
+//         levelDiv.style.justifyContent = 'center';
+//         levelDiv.style.gap = '30px';
+//         levelDiv.style.position = 'relative';
+        
+//         levels[level].forEach(personName => {
+//             const person = treeData[personName];
+//             const card = createPersonCard(person);
+//             levelDiv.appendChild(card);
+//         });
+        
+//         treeDiv.appendChild(levelDiv);
+//     });
+    
+//     treeView.appendChild(treeDiv);
+// }
+
+// function getGenerationLevels() {
+//     const levels = {};
+//     const visited = new Set();
+    
+//     function assignLevel(personName, level) {
+//         if (visited.has(personName)) return;
+//         visited.add(personName);
+        
+//         if (!levels[level]) levels[level] = [];
+//         levels[level].push(personName);
+        
+//         const person = treeData[personName];
+//         if (person.children) {
+//             person.children.forEach(childName => {
+//                 assignLevel(childName, level + 1);
+//             });
+//         }
+//     }
+    
+//     // شروع از ریشه‌ها
+//     Object.values(treeData).forEach(p => {
+//         if (!p.father && !p.mother) {
+//             assignLevel(p.name, 0);
+//         }
+//     });
+    
+//     return levels;
+// }
+
+// function createPersonCard(person) {
+//     const card = document.createElement('div');
+//     card.className = `person-card ${person.gender}`;
+//     card.innerHTML = `
+//         <div class="person-name">${person.name}</div>
+//         <div class="person-gender">${person.gender === 'male' ? '👨 مرد' : '👩 زن'}</div>
+//     `;
+//     return card;
+// }
+
+// test
 function renderTree() {
     const treeView = document.getElementById('treeView');
     treeView.innerHTML = '';
-    
-    const roots = Object.values(treeData).filter(p => !p.father && !p.mother);
-    
-    if (roots.length === 0) {
-        treeView.innerHTML = '<p style="text-align:center; color:#666;">هنوز فردی اضافه نشده است</p>';
-        return;
+
+    const roots = Object.values(treeData).filter(
+        p => !p.father && !p.mother
+    );
+
+    roots.forEach(root => {
+        const node = renderPersonNode(root.name);
+        treeView.appendChild(node);
+    });
+}
+function renderPersonNode(personName) {
+    const person = treeData[personName];
+
+    const container = document.createElement('div');
+    container.className = 'tree-node';
+
+    // والدین
+    if (person.father || person.mother) {
+        const parentsDiv = document.createElement('div');
+        parentsDiv.className = 'parents';
+
+        if (person.father) {
+            parentsDiv.appendChild(createPersonCard(treeData[person.father]));
+        }
+        if (person.mother) {
+            parentsDiv.appendChild(createPersonCard(treeData[person.mother]));
+        }
+
+        container.appendChild(parentsDiv);
+        container.appendChild(createLineDown());
     }
 
-    const treeDiv = document.createElement('div');
-    treeDiv.style.display = 'flex';
-    treeDiv.style.flexDirection = 'column';
-    treeDiv.style.alignItems = 'center';
-    treeDiv.style.gap = '40px';
-    
-    // نمایش هر نسل در یک سطر
-    const levels = getGenerationLevels();
-    
-    Object.keys(levels).sort((a, b) => a - b).forEach(level => {
-        const levelDiv = document.createElement('div');
-        levelDiv.style.display = 'flex';
-        levelDiv.style.justifyContent = 'center';
-        levelDiv.style.gap = '30px';
-        levelDiv.style.position = 'relative';
-        
-        levels[level].forEach(personName => {
-            const person = treeData[personName];
-            const card = createPersonCard(person);
-            levelDiv.appendChild(card);
+    // خود شخص
+    container.appendChild(createPersonCard(person));
+
+    // فرزندان
+    if (person.children && person.children.length > 0) {
+        container.appendChild(createLineDown());
+
+        const childrenDiv = document.createElement('div');
+        childrenDiv.className = 'children';
+
+        person.children.forEach(childName => {
+            childrenDiv.appendChild(renderPersonNode(childName));
         });
-        
-        treeDiv.appendChild(levelDiv);
-    });
-    
-    treeView.appendChild(treeDiv);
-}
 
-function getGenerationLevels() {
-    const levels = {};
-    const visited = new Set();
-    
-    function assignLevel(personName, level) {
-        if (visited.has(personName)) return;
-        visited.add(personName);
-        
-        if (!levels[level]) levels[level] = [];
-        levels[level].push(personName);
-        
-        const person = treeData[personName];
-        if (person.children) {
-            person.children.forEach(childName => {
-                assignLevel(childName, level + 1);
-            });
-        }
+        container.appendChild(childrenDiv);
     }
-    
-    // شروع از ریشه‌ها
-    Object.values(treeData).forEach(p => {
-        if (!p.father && !p.mother) {
-            assignLevel(p.name, 0);
-        }
-    });
-    
-    return levels;
-}
 
+    return container;
+}
 function createPersonCard(person) {
     const card = document.createElement('div');
     card.className = `person-card ${person.gender}`;
     card.innerHTML = `
-        <div class="person-name">${person.name}</div>
-        <div class="person-gender">${person.gender === 'male' ? '👨 مرد' : '👩 زن'}</div>
+        <div>${person.name}</div>
+        <div style="font-size:12px; opacity:0.7">
+            ${person.gender === 'male' ? '👨 مرد' : '👩 زن'}
+        </div>
     `;
     return card;
 }
 
-// function renderTree() {
-//   const treeView = document.getElementById("treeView");
-//   treeView.innerHTML = "";
+function createLineDown() {
+    const line = document.createElement('div');
+    line.className = 'line-down';
+    return line;
+}
 
-//   const roots = Object.values(treeData).filter((p) => !p.father && !p.mother);
-
-//   if (roots.length === 0) {
-//     treeView.innerHTML =
-//       '<p style="text-align:center; color:#666;">هنوز فردی اضافه نشده است</p>';
-//     return;
-//   }
-
-//   const treeDiv = document.createElement("div");
-//   treeDiv.className = "tree";
-
-//   roots.forEach((root) => {
-//     treeDiv.appendChild(renderNode(root));
-//   });
-
-//   treeView.appendChild(treeDiv);
-// }
-
-// function renderNode(person) {
-//   const node = document.createElement("div");
-//   node.className = "node";
-
-//   const card = document.createElement("div");
-//   card.className = `person-card ${person.gender}`;
-//   card.innerHTML = `
-//                 <div class="person-name">${person.name}</div>
-//                 <div class="person-gender">${
-//                   person.gender === "male" ? "👨 مرد" : "👩 زن"
-//                 }</div>
-//             `;
-//   node.appendChild(card);
-
-//   if (person.children && person.children.length > 0) {
-//     const connector = document.createElement("div");
-//     connector.className = "connector";
-//     node.appendChild(connector);
-
-//     const childrenContainer = document.createElement("div");
-//     childrenContainer.className = "children-container";
-
-//     person.children.forEach((childName) => {
-//       if (treeData[childName]) {
-//         childrenContainer.appendChild(renderNode(treeData[childName]));
-//       }
-//     });
-
-//     node.appendChild(childrenContainer);
-//   }
-
-//   return node;
-// }
 
 // شروع برنامه
 (async function init() {
